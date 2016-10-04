@@ -234,6 +234,12 @@ module.exports = {
    * @returns {Boolean} whether or not coverage is enabled
    */
   _isCoverageEnabled: function() {
+    var coverageFolder = process.env[this._getConfig().coverageFolderEnvVar];
+
+    if (coverageFolder) {
+      return true;
+    }
+
     var value = process.env[this._getConfig().coverageEnvVar] || false;
 
     if (value.toLowerCase) {
