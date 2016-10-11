@@ -12,9 +12,9 @@ var config = require('./lib/config');
 
 module.exports = {
   name: 'ember-cli-code-coverage',
+  includedFiles: [],
 
   // Ember Methods
-
   included: function() {
     if (this._isCoverageEnabled() && this.parent.isEmberCLIAddon()) {
       var coveredAddon = this.project.findAddonByName(this.project.pkg.name);
@@ -37,7 +37,8 @@ module.exports = {
   contentFor: function(type) {
     // If coverage is enabled add content to test-body-footer to show percentages
     if (type === 'test-body-footer' && this._isCoverageEnabled()) {
-      return fs.readFileSync(path.join(__dirname, 'lib', 'templates', 'test-body-footer.html'));
+      var str = '<script>var includedFiles = "' + Object.keys(this.includedFiles.outputToInputMappings) + '";</script>\n';
+      return str + fs.readFileSync(path.join(__dirname, 'lib', 'templates', 'test-body-footer.html'));
     }
 
     return undefined;
@@ -61,6 +62,7 @@ module.exports = {
     var appFiles = new Funnel(tree, {
       exclude: this._getExcludes()
     });
+    this.includedFiles = appFiles;
 
     // Instrument JavaScript for code coverage
     var instrumentedNode = new CoverageInstrumenter(appFiles, {

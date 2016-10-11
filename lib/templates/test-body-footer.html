@@ -1,4 +1,9 @@
 <script>
+  var allFileNames = {};
+  includedFiles.split(',').forEach(function(fileName) {
+    allFileNames[fileName] = true;
+  });
+
   function sendCoverage(callback) {
     var coverageData = window.__coverage__;
     var data = JSON.stringify(coverageData || {});
@@ -27,6 +32,24 @@
 
   if (typeof Testem !== "undefined" && Testem.afterTests) {
     Testem.afterTests(function(config, data, callback) {
+      var seen = {};
+      Object.keys(__coverage__).forEach(function(fileName) {
+        seen[fileName] = true;
+      });
+      for (var moduleName in requirejs.entries) {
+        var fileName = moduleName + '.js';
+
+        if (!seen[fileName]) {
+          if (allFileNames[fileName]) {
+            try {
+              require(moduleName);
+              seen[fileName] = true;
+            } catch (err) {
+              console.log(err);
+            }
+          }
+        }
+      }
       sendCoverage(callback);
     });
   } else if (typeof QUnit !== "undefined") {
