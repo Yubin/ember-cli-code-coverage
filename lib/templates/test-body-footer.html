@@ -27,9 +27,14 @@
       // PhantomJS doesn't honor `responseType = 'json'`
       if (typeof data === 'string') {
         data = JSON.parse(data);
+      } else if (typeof data === 'undefined' && typeof this.responseText !== 'undefined') {
+        data = JSON.parse(this.responseText);
       }
 
       if (!data || !data.total) {
+        if (callback) {
+          callback();
+        }
         return;
       }
 
